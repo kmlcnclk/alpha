@@ -1,0 +1,25 @@
+package web
+
+import (
+	"net/http"
+
+	"alpha.com/internal/alpha.com/application/controller"
+	"alpha.com/internal/alpha.com/pkg/server/middlewares"
+	"github.com/gofiber/fiber/v2"
+)
+
+func InitRouter(app *fiber.App, userController controller.IUserController, jwtController controller.IJwtController) {
+
+	app.Get("/healthcheck", func(context *fiber.Ctx) error {
+		return context.SendStatus(http.StatusOK)
+	})
+
+	alphaRouteGroup := app.Group("/api/v1/alpha")
+
+	alphaRouteGroup.Get("/user", userController.GetUser)
+	alphaRouteGroup.Post("/user", middlewares.IsEmailFormatCorrect, userController.Save)
+	alphaRouteGroup.Get("/user/:userId", middlewares.JwtMiddleware, userController.GetUserById)
+
+	alphaRouteGroup.Post("/jwt", jwtController.Create)
+	alphaRouteGroup.Get("/jwt", jwtController.GetJwt)
+}

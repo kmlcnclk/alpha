@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"alpha.com/configuration"
 	"alpha.com/internal/alpha.com/application/controller/request"
 	"alpha.com/internal/alpha.com/application/controller/response"
 	"alpha.com/internal/alpha.com/application/handler/user"
@@ -20,6 +21,7 @@ type IUserController interface {
 	Save(ctx *fiber.Ctx) error
 	GetUser(ctx *fiber.Ctx) error
 	GetUserById(ctx *fiber.Ctx) error
+	SignIn(ctx *fiber.Ctx) error
 }
 
 type UserController struct {
@@ -97,7 +99,7 @@ func (u *UserController) Save(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	body, errOfHelper := helpers.HttpPostHelper("http://localhost:8080/api/v1/alpha/jwt", bytes.NewBuffer(jsonData))
+	body, errOfHelper := helpers.HttpPostHelper(configuration.BACKEND_URL+"/api/v1/alpha/jwt", bytes.NewBuffer(jsonData))
 
 	if errOfHelper != nil {
 		fmt.Printf("userController.Save ERROR -> There was an error while sending request to jwt - ERROR: %v\n", errOfHelper.Error())
@@ -114,6 +116,96 @@ func (u *UserController) Save(ctx *fiber.Ctx) error {
 	errOfData := json.Unmarshal([]byte(string(body)), &data)
 	if errOfData != nil {
 		fmt.Printf("userController.Save ERROR -> There was an error while binding data - ERROR: %v\n:", errOfData.Error())
+		return errOfData
+	}
+
+	return ctx.Status(http.StatusOK).JSON(
+		map[string]interface{}{
+			"message": "User Created Successfully",
+			"response": map[string]interface{}{
+				"accessToken":  data["accessToken"],
+				"refreshToken": data["refreshToken"],
+			},
+		},
+	)
+}
+
+// Save godoc
+
+//	@Summary		This method used for sign up to user
+//	@Description	sign up for user
+//
+// @Param requestBody body request.UserSignInRequest nil "Handle Request Body"
+//
+//	@Tags			User
+//	@Accept			json
+//	@Produce		json
+//
+// @Success 200
+//
+//	@Failure		400
+//	@Failure		404
+//	@Failure		500
+//	@Router			/api/v1/alpha/user/sign-in [post]
+func (u *UserController) SignIn(ctx *fiber.Ctx) error {
+	var req request.UserSignInRequest
+	err := ctx.BodyParser(&req)
+
+	if err != nil {
+		fmt.Printf("userController.SignIn ERROR -> There was an error while binding json - ERROR: %v\n", err.Error())
+		return ctx.Status(http.StatusBadRequest).JSON(err.Error())
+	}
+
+	fmt.Printf("userController.SignIn STARTED with request: %#v\n", req)
+
+	if err := u.customValidator.Validate(req); err != nil {
+		fmt.Printf("userController.SignIn INVALID request: %#v\n - ERROR: %#v", req, err)
+		return ctx.Status(http.StatusBadRequest).JSON(err)
+	}
+
+	userID, errOfCommandHandler := u.userCommandHandler.SignIn(ctx.UserContext(), req.ToCommand())
+
+	if errOfCommandHandler != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(
+			response.CustomError{
+				ErrorName:  "Bad Request",
+				StatusCode: http.StatusBadRequest,
+				Message:    errOfCommandHandler.Error(),
+			})
+	}
+
+	if userID == "" {
+		fmt.Printf("userController.SignIn ERROR -> There was an error while binding json - ERROR: %v\n", "Internal Server Error")
+		return ctx.Status(http.StatusBadRequest).JSON("Internal Server Error")
+	}
+
+	// Create a map to represent the JSON data
+	requestData := map[string]string{"userId": userID}
+
+	// Convert the map to JSON
+	jsonData, err := json.Marshal(requestData)
+	if err != nil {
+		fmt.Println("Error marshalling JSON:", err)
+		return err
+	}
+
+	body, errOfHelper := helpers.HttpPostHelper(configuration.BACKEND_URL+"/api/v1/alpha/jwt", bytes.NewBuffer(jsonData))
+
+	if errOfHelper != nil {
+		fmt.Printf("userController.SignIn ERROR -> There was an error while sending request to jwt - ERROR: %v\n", errOfHelper.Error())
+		return errOfHelper
+	}
+
+	if body == nil {
+		fmt.Printf("userController.SignIn ERROR -> There was an error while sending request to jwt - ERROR: %v\n", "body is nil")
+		return ctx.Status(http.StatusBadRequest).JSON("body is nil")
+	}
+
+	var data map[string]string
+
+	errOfData := json.Unmarshal([]byte(string(body)), &data)
+	if errOfData != nil {
+		fmt.Printf("userController.SignIn ERROR -> There was an error while binding data - ERROR: %v\n:", errOfData.Error())
 		return errOfData
 	}
 

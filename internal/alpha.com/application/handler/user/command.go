@@ -8,3 +8,8 @@ type Command struct {
 	Password  string
 	Age       int32
 }
+
+type CommandSignIn struct {
+	Email    string
+	Password string
+}

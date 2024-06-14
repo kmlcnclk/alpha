@@ -154,6 +154,45 @@
                 }
             }
         },
+        "/api/v1/alpha/user/sign-in": {
+            "post": {
+                "description": "sign up for user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "This method used for sign up to user",
+                "parameters": [
+                    {
+                        "description": "Handle Request Body",
+                        "name": "requestBody",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/request.UserSignInRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/api/v1/alpha/user/{userId}": {
             "get": {
                 "description": "get user by id",
@@ -233,6 +272,23 @@
                     "minLength": 2
                 },
                 "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 16,
+                    "minLength": 8
+                }
+            }
+        },
+        "request.UserSignInRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
                     "type": "string"
                 },
                 "password": {

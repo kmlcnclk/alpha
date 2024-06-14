@@ -18,6 +18,7 @@ func InitRouter(app *fiber.App, userController controller.IUserController, jwtCo
 
 	alphaRouteGroup.Get("/user", userController.GetUser)
 	alphaRouteGroup.Post("/user", middlewares.IsEmailFormatCorrect, userController.Save)
+	alphaRouteGroup.Post("/user/sign-in", middlewares.IsEmailFormatCorrect, userController.SignIn)
 	alphaRouteGroup.Get("/user/:userId", middlewares.JwtMiddleware, userController.GetUserById)
 
 	alphaRouteGroup.Post("/jwt", jwtController.Create)

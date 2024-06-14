@@ -73,11 +73,8 @@ func (r *userRepository) GetById(ctx context.Context, userId string) (*domain.Us
 		fmt.Printf("userRepository.GetById ERROR :  %s\n", err.Error())
 	}
 
-	// fmt.Println(objectID)
 	var user *domain.User
 	err = collection.FindOne(context.TODO(), bson.D{{Key: "_id", Value: objectID}}).Decode(&user)
-
-	// fmt.Println(user.Email)
 
 	if err != nil {
 		fmt.Printf("userRepository.GetById ERROR :  %s\n", err.Error())

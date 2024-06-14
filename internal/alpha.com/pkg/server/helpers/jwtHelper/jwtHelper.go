@@ -1,6 +1,8 @@
 package jwtHelper
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"alpha.com/configuration"
@@ -10,6 +12,8 @@ import (
 
 type IJwtHelper interface {
 	CreateTokens(userID string) (string, string, error)
+	ParseRefreshToken(refresh string) (string, error)
+	CreateAccessToken(userID string) (string, error)
 }
 
 type jwtHelper struct {
@@ -59,4 +63,42 @@ func (j *jwtHelper) CreateTokens(userID string) (string, string, error) {
 	}
 
 	return accessToken, refreshTokenString, nil
+}
+
+func (j *jwtHelper) ParseRefreshToken(refresh string) (string, error) {
+	token, err := jwt.Parse(refresh, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return refreshKey, nil
+	})
+
+	if err != nil {
+		return "", errors.New("Invalid or expired JWT")
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		userID := claims["userID"].(string)
+		return userID, nil
+	}
+
+	return "", errors.New("Invalid or expired JWT")
+}
+
+func (j *jwtHelper) CreateAccessToken(userID string) (string, error) {
+	expirationTime := time.Now().Add(15 * time.Minute)
+	claims := &Claims{
+		UserID: userID,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	accessToken, err := token.SignedString(jwtKey)
+	if err != nil {
+		return "", err
+	}
+
+	return accessToken, nil
 }

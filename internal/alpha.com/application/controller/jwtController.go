@@ -7,6 +7,7 @@ import (
 	"alpha.com/internal/alpha.com/application/controller/request"
 	"alpha.com/internal/alpha.com/application/controller/response"
 	"alpha.com/internal/alpha.com/application/handler/jwt"
+	"alpha.com/internal/alpha.com/application/query"
 	"alpha.com/internal/alpha.com/pkg/validation"
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,15 +15,18 @@ import (
 type IJwtController interface {
 	Create(ctx *fiber.Ctx) error
 	GetJwt(ctx *fiber.Ctx) error
+	Refresh(ctx *fiber.Ctx) error
 }
 
 type JwtController struct {
+	jwtQueryService   query.IJwtQueryService
 	jwtCommandHandler jwt.ICommandHandler
 	customValidator   validation.ICustomValidator
 }
 
-func NewJwtController(jwtCommandHandler jwt.ICommandHandler, customValidator validation.ICustomValidator) IJwtController {
+func NewJwtController(jwtQueryService query.IJwtQueryService, jwtCommandHandler jwt.ICommandHandler, customValidator validation.ICustomValidator) IJwtController {
 	return &JwtController{
+		jwtQueryService:   jwtQueryService,
 		jwtCommandHandler: jwtCommandHandler,
 		customValidator:   customValidator,
 	}
@@ -91,7 +95,7 @@ func (u *JwtController) Create(ctx *fiber.Ctx) error {
 //	@Failure		500
 //	@Router			/api/v1/alpha/jwt [get]
 func (u *JwtController) GetJwt(ctx *fiber.Ctx) error {
-	jwts, err := u.jwtCommandHandler.Get(ctx.Context())
+	jwts, err := u.jwtQueryService.Get(ctx.Context())
 
 	if err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(
@@ -102,5 +106,88 @@ func (u *JwtController) GetJwt(ctx *fiber.Ctx) error {
 
 	return ctx.Status(http.StatusOK).JSON(
 		response.ToJwtResponseList(jwts),
+	)
+}
+
+// Save godoc
+
+//	@Summary		This method used for saving new jwt
+//	@Description	saving new jwt
+//
+// @Param x-refresh header string true "{token}"
+//
+//	@Tags			JWT
+//	@Accept			json
+//	@Produce		json
+//
+// @Success 200
+//
+//	@Failure		400
+//	@Failure		404
+//	@Failure		500
+//	@Router			/api/v1/alpha/jwt/refresh [post]
+func (u *JwtController) Refresh(ctx *fiber.Ctx) error {
+	refreshToken := ctx.Get("X-Refresh")
+
+	if refreshToken == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Refresh token is required"})
+	}
+
+	fmt.Printf("jwtController.Refresh INFO -> Refresh Token: %v\n", refreshToken)
+
+	userID, err := u.jwtQueryService.ParseRefreshToken(ctx.Context(), refreshToken)
+
+	if err != nil {
+		fmt.Printf("jwtController.Refresh ERROR -> There was an error while parsing refresh token - ERROR: %v\n", err.Error())
+		return ctx.Status(http.StatusInternalServerError).JSON(
+			map[string]interface{}{
+				"error": err.Error(),
+			},
+		)
+	}
+
+	user, err := u.jwtQueryService.GetUserById(ctx.Context(), userID)
+
+	if err != nil {
+		fmt.Printf("jwtController.Refresh ERROR -> There was an error while binding json - ERROR: %v\n", err.Error())
+		return ctx.Status(http.StatusInternalServerError).JSON(
+			map[string]interface{}{
+				"error": err.Error(),
+			},
+		)
+	}
+
+	if user == nil {
+		return ctx.Status(http.StatusNotFound).JSON(
+			map[string]interface{}{
+				"error": "User not found with given refresh token",
+			},
+		)
+	}
+
+	accessToken, err := u.jwtCommandHandler.Refresh(ctx.Context(), userID)
+
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(
+			map[string]interface{}{
+				"error": err.Error(),
+			},
+		)
+	}
+
+	err = u.jwtCommandHandler.Update(ctx.Context(), userID, accessToken, refreshToken)
+
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(
+			map[string]interface{}{
+				"error": err.Error(),
+			},
+		)
+	}
+
+	return ctx.Status(http.StatusOK).JSON(
+		map[string]interface{}{
+			"accessToken": accessToken,
+		},
 	)
 }

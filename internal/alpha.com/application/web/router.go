@@ -22,5 +22,6 @@ func InitRouter(app *fiber.App, userController controller.IUserController, jwtCo
 	alphaRouteGroup.Get("/user/:userId", middlewares.JwtMiddleware, userController.GetUserById)
 
 	alphaRouteGroup.Post("/jwt", jwtController.Create)
+	alphaRouteGroup.Post("/jwt/refresh", jwtController.Refresh)
 	alphaRouteGroup.Get("/jwt", jwtController.GetJwt)
 }

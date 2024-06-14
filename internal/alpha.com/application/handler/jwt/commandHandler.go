@@ -2,7 +2,9 @@ package jwt
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"alpha.com/internal/alpha.com/application/repository"
 	"alpha.com/internal/alpha.com/domain"
@@ -12,7 +14,8 @@ import (
 
 type ICommandHandler interface {
 	Create(ctx context.Context, command Command) (string, string, error)
-	Get(ctx context.Context) ([]*domain.Jwt, error)
+	Refresh(ctx context.Context, userID string) (string, error)
+	Update(ctx context.Context, userID, accessToken, refreshToken string) error
 }
 
 type commandHandler struct {
@@ -55,8 +58,31 @@ func (c *commandHandler) Create(ctx context.Context, command Command) (string, s
 	return accessToken, refreshToken, nil
 }
 
-func (c *commandHandler) Get(ctx context.Context) ([]*domain.Jwt, error) {
-	return c.jwtRepository.Get(ctx)
+func (c *commandHandler) Refresh(ctx context.Context, userID string) (string, error) {
+	accessToken, err := c.jwtHelper.CreateAccessToken(userID)
+
+	if err != nil {
+		fmt.Printf("commandHandler.Refresh ERROR -> There was an error while creating access token - ERROR: %v\n", err.Error())
+		return "", err
+	}
+
+	if accessToken == "" {
+		fmt.Errorf("commandHandler.Refresh ERROR -> Access Token is empty")
+		return "", errors.New("Access could not created")
+	}
+
+	return accessToken, nil
+}
+
+func (c *commandHandler) Update(ctx context.Context, userID, accessToken, refreshToken string) error {
+	err := c.jwtRepository.Update(ctx, userID, accessToken, refreshToken)
+
+	if err != nil {
+		fmt.Printf("commandHandler.Update ERROR -> There was an error while updating jwt tokens - ERROR: %v\n", err.Error())
+		return err
+	}
+
+	return nil
 }
 
 func (c *commandHandler) BuildEntity(accessToken, refreshToken string, userID primitive.ObjectID) *domain.Jwt {
@@ -65,5 +91,7 @@ func (c *commandHandler) BuildEntity(accessToken, refreshToken string, userID pr
 		UserID:       userID,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	}
 }

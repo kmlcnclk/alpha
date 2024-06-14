@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"alpha.com/internal/alpha.com/application/repository"
 	"alpha.com/internal/alpha.com/domain"
@@ -83,5 +84,7 @@ func (c *commandHandler) BuildEntity(command Command, hashedPassword string) *do
 		Email:     command.Email,
 		Password:  hashedPassword,
 		Age:       command.Age,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 }

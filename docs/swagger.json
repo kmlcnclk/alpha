@@ -82,6 +82,44 @@
                 }
             }
         },
+        "/api/v1/alpha/jwt/refresh": {
+            "post": {
+                "description": "saving new jwt",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "JWT"
+                ],
+                "summary": "This method used for saving new jwt",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "{token}",
+                        "name": "x-refresh",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/api/v1/alpha/user": {
             "get": {
                 "description": "get all users",

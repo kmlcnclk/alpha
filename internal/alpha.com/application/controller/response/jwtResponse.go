@@ -1,14 +1,18 @@
 package response
 
 import (
+	"time"
+
 	"alpha.com/internal/alpha.com/domain"
 )
 
 type JwtResponse struct {
-	Id           string `json:"_id"`
-	UserID       string `json:"userId"`
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	Id           string    `json:"_id"`
+	UserID       string    `json:"userId"`
+	AccessToken  string    `json:"accessToken"`
+	RefreshToken string    `json:"refreshToken"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 func ToJwtResponse(jwt *domain.Jwt) JwtResponse {
@@ -17,6 +21,8 @@ func ToJwtResponse(jwt *domain.Jwt) JwtResponse {
 		UserID:       jwt.UserID.Hex(),
 		AccessToken:  jwt.AccessToken,
 		RefreshToken: jwt.RefreshToken,
+		CreatedAt:    jwt.CreatedAt,
+		UpdatedAt:    jwt.UpdatedAt,
 	}
 }
 

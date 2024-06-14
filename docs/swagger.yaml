@@ -117,6 +117,31 @@ paths:
       summary: This method used for saving new jwt
       tags:
       - JWT
+  /api/v1/alpha/jwt/refresh:
+    post:
+      consumes:
+      - application/json
+      description: saving new jwt
+      parameters:
+      - description: '{token}'
+        in: header
+        name: x-refresh
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: This method used for saving new jwt
+      tags:
+      - JWT
   /api/v1/alpha/user:
     get:
       consumes:

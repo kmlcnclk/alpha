@@ -4,6 +4,7 @@ import (
 	"alpha.com/configuration"
 	_ "alpha.com/docs"
 	"alpha.com/internal/alpha.com/application/controller"
+	"alpha.com/internal/alpha.com/application/controller/response"
 	"alpha.com/internal/alpha.com/application/handler/jwt"
 	"alpha.com/internal/alpha.com/application/handler/user"
 	"alpha.com/internal/alpha.com/application/query"
@@ -26,7 +27,38 @@ import (
 // @contact.email	alpha@gmail.com
 func main() {
 	// fiber framework http server
-	app := fiber.New()
+	app := fiber.New(
+		fiber.Config{
+			// Override default error handler
+			ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+
+				// Default status code
+				statusCode := fiber.StatusInternalServerError
+
+				// Retrieve the custom error from fiber's context if it exists
+				var customError response.CustomError
+
+				if e, ok := err.(*fiber.Error); ok {
+					// Fiber error, use its status code and message
+					statusCode = e.Code
+					customError = response.CustomError{
+						StatusCode: statusCode,
+						Message:    e.Message,
+					}
+				} else {
+
+					// Non-fiber error, use default status code and message
+					customError = response.CustomError{
+						StatusCode: statusCode,
+						Message:    err.Error(),
+					}
+				}
+
+				// Send custom error response
+				return ctx.Status(customError.StatusCode).JSON(customError)
+			},
+		},
+	)
 
 	app.Use(recover.New())
 

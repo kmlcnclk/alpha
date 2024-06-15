@@ -14,18 +14,14 @@ func IsEmailFormatCorrect(ctx *fiber.Ctx) error {
 
 	var requestBody request.UserCreteRequest
 	if err := ctx.BodyParser(&requestBody); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "JSON format is not correct",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "JSON format is not correct")
 	}
 
 	if isEmailContent(requestBody.Email) {
 		return ctx.Next()
 	}
 
-	return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-		"error": "Email format is not correct!!",
-	})
+	return fiber.NewError(fiber.StatusBadRequest, "Email format is not correct")
 }
 
 func isEmailContent(email string) bool {

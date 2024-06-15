@@ -61,7 +61,7 @@ func (u *UserController) Save(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		fmt.Printf("userController.Save ERROR -> There was an error while binding json - ERROR: %v\n", err.Error())
-		return ctx.Status(http.StatusBadRequest).JSON(err.Error())
+		return fiber.NewError(http.StatusBadRequest, err.Error())
 	}
 
 	fmt.Printf("userController.Save STARTED with request: %#v\n", req)
@@ -74,19 +74,12 @@ func (u *UserController) Save(ctx *fiber.Ctx) error {
 	userID, errOfCommandHandler := u.userCommandHandler.Save(ctx.UserContext(), req.ToCommand())
 
 	if errOfCommandHandler != nil {
-
-		return ctx.Status(http.StatusBadRequest).JSON(
-			response.CustomError{
-				ErrorName:  "Bad Request",
-				StatusCode: http.StatusBadRequest,
-				Message:    errOfCommandHandler.Error(),
-			})
+		return fiber.NewError(http.StatusBadRequest, errOfCommandHandler.Error())
 	}
 
 	if userID == "" {
 		fmt.Printf("userController.Save ERROR -> There was an error while binding json - ERROR: %v\n", "Internal Server Error")
-
-		return ctx.Status(http.StatusBadRequest).JSON("Internal Server Error")
+		return fiber.NewError(http.StatusBadRequest, "Internal Server Error")
 	}
 
 	// Create a map to represent the JSON data
@@ -96,19 +89,19 @@ func (u *UserController) Save(ctx *fiber.Ctx) error {
 	jsonData, err := json.Marshal(requestData)
 	if err != nil {
 		fmt.Println("Error marshalling JSON:", err)
-		return err
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	body, errOfHelper := helpers.HttpPostHelper(configuration.BACKEND_URL+"/api/v1/alpha/jwt", bytes.NewBuffer(jsonData))
 
 	if errOfHelper != nil {
 		fmt.Printf("userController.Save ERROR -> There was an error while sending request to jwt - ERROR: %v\n", errOfHelper.Error())
-		return errOfHelper
+		return fiber.NewError(http.StatusInternalServerError, errOfHelper.Error())
 	}
 
 	if body == nil {
 		fmt.Printf("userController.Save ERROR -> There was an error while sending request to jwt - ERROR: %v\n", "body is nil")
-		return ctx.Status(http.StatusBadRequest).JSON("body is nil")
+		return fiber.NewError(http.StatusBadRequest, "Body is nil")
 	}
 
 	var data map[string]string
@@ -116,7 +109,7 @@ func (u *UserController) Save(ctx *fiber.Ctx) error {
 	errOfData := json.Unmarshal([]byte(string(body)), &data)
 	if errOfData != nil {
 		fmt.Printf("userController.Save ERROR -> There was an error while binding data - ERROR: %v\n:", errOfData.Error())
-		return errOfData
+		return fiber.NewError(http.StatusInternalServerError, errOfData.Error())
 	}
 
 	return ctx.Status(http.StatusOK).JSON(
@@ -153,7 +146,7 @@ func (u *UserController) SignIn(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		fmt.Printf("userController.SignIn ERROR -> There was an error while binding json - ERROR: %v\n", err.Error())
-		return ctx.Status(http.StatusBadRequest).JSON(err.Error())
+		return fiber.NewError(http.StatusBadRequest, err.Error())
 	}
 
 	fmt.Printf("userController.SignIn STARTED with request: %#v\n", req)
@@ -166,17 +159,12 @@ func (u *UserController) SignIn(ctx *fiber.Ctx) error {
 	userID, errOfCommandHandler := u.userCommandHandler.SignIn(ctx.UserContext(), req.ToCommand())
 
 	if errOfCommandHandler != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(
-			response.CustomError{
-				ErrorName:  "Bad Request",
-				StatusCode: http.StatusBadRequest,
-				Message:    errOfCommandHandler.Error(),
-			})
+		return fiber.NewError(http.StatusBadRequest, errOfCommandHandler.Error())
 	}
 
 	if userID == "" {
 		fmt.Printf("userController.SignIn ERROR -> There was an error while binding json - ERROR: %v\n", "Internal Server Error")
-		return ctx.Status(http.StatusBadRequest).JSON("Internal Server Error")
+		return fiber.NewError(http.StatusInternalServerError, "Internal Server Error")
 	}
 
 	// Create a map to represent the JSON data
@@ -186,19 +174,19 @@ func (u *UserController) SignIn(ctx *fiber.Ctx) error {
 	jsonData, err := json.Marshal(requestData)
 	if err != nil {
 		fmt.Println("Error marshalling JSON:", err)
-		return err
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	body, errOfHelper := helpers.HttpPostHelper(configuration.BACKEND_URL+"/api/v1/alpha/jwt", bytes.NewBuffer(jsonData))
 
 	if errOfHelper != nil {
 		fmt.Printf("userController.SignIn ERROR -> There was an error while sending request to jwt - ERROR: %v\n", errOfHelper.Error())
-		return errOfHelper
+		return fiber.NewError(http.StatusInternalServerError, errOfHelper.Error())
 	}
 
 	if body == nil {
 		fmt.Printf("userController.SignIn ERROR -> There was an error while sending request to jwt - ERROR: %v\n", "body is nil")
-		return ctx.Status(http.StatusBadRequest).JSON("body is nil")
+		return fiber.NewError(http.StatusBadRequest, "Body is nil")
 	}
 
 	var data map[string]string
@@ -206,7 +194,7 @@ func (u *UserController) SignIn(ctx *fiber.Ctx) error {
 	errOfData := json.Unmarshal([]byte(string(body)), &data)
 	if errOfData != nil {
 		fmt.Printf("userController.SignIn ERROR -> There was an error while binding data - ERROR: %v\n:", errOfData.Error())
-		return errOfData
+		return fiber.NewError(http.StatusInternalServerError, errOfData.Error())
 	}
 
 	return ctx.Status(http.StatusOK).JSON(
@@ -239,7 +227,7 @@ func (u *UserController) GetUser(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		fmt.Printf("userController.GetUser ERROR -> There was an error while getting users - ERROR: %v\n", err.Error())
-		return ctx.Status(http.StatusInternalServerError).JSON(err.Error())
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.ToUserResponseList(users))
@@ -269,7 +257,7 @@ func (u *UserController) GetUserById(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		fmt.Printf("userController.GetUserById ERROR -> There was an error while getting user - ERROR: %v\n", err.Error())
-		return ctx.Status(http.StatusInternalServerError).JSON(err.Error())
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	return ctx.Status(http.StatusOK).JSON(response.ToUserResponse(user))

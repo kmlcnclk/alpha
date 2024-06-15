@@ -57,20 +57,14 @@ func (u *JwtController) Create(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		fmt.Printf("jwtController.Save ERROR -> There was an error while binding json - ERROR: %v\n", err.Error())
-		return err
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	accessToken, refreshToken, err := u.jwtCommandHandler.Create(ctx.Context(), req.ToCommand())
 
 	if err != nil {
-		return ctx.Status(http.StatusInternalServerError).JSON(
-			map[string]interface{}{
-				"error": err.Error(),
-			},
-		)
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
-
-	fmt.Println(accessToken, refreshToken)
 
 	return ctx.Status(http.StatusOK).JSON(
 		map[string]interface{}{
@@ -98,10 +92,7 @@ func (u *JwtController) GetJwt(ctx *fiber.Ctx) error {
 	jwts, err := u.jwtQueryService.Get(ctx.Context())
 
 	if err != nil {
-		return ctx.Status(http.StatusInternalServerError).JSON(
-			map[string]interface{}{
-				"error": err.Error(),
-			})
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	return ctx.Status(http.StatusOK).JSON(
@@ -130,7 +121,7 @@ func (u *JwtController) Refresh(ctx *fiber.Ctx) error {
 	refreshToken := ctx.Get("X-Refresh")
 
 	if refreshToken == "" {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Refresh token is required"})
+		return fiber.NewError(http.StatusBadRequest, "Refresh token is required")
 	}
 
 	fmt.Printf("jwtController.Refresh INFO -> Refresh Token: %v\n", refreshToken)
@@ -139,50 +130,30 @@ func (u *JwtController) Refresh(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		fmt.Printf("jwtController.Refresh ERROR -> There was an error while parsing refresh token - ERROR: %v\n", err.Error())
-		return ctx.Status(http.StatusInternalServerError).JSON(
-			map[string]interface{}{
-				"error": err.Error(),
-			},
-		)
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	user, err := u.jwtQueryService.GetUserById(ctx.Context(), userID)
 
 	if err != nil {
 		fmt.Printf("jwtController.Refresh ERROR -> There was an error while binding json - ERROR: %v\n", err.Error())
-		return ctx.Status(http.StatusInternalServerError).JSON(
-			map[string]interface{}{
-				"error": err.Error(),
-			},
-		)
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	if user == nil {
-		return ctx.Status(http.StatusNotFound).JSON(
-			map[string]interface{}{
-				"error": "User not found with given refresh token",
-			},
-		)
+		return fiber.NewError(http.StatusNotFound, "User not found with given refresh token")
 	}
 
 	accessToken, err := u.jwtCommandHandler.Refresh(ctx.Context(), userID)
 
 	if err != nil {
-		return ctx.Status(http.StatusInternalServerError).JSON(
-			map[string]interface{}{
-				"error": err.Error(),
-			},
-		)
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	err = u.jwtCommandHandler.Update(ctx.Context(), userID, accessToken, refreshToken)
 
 	if err != nil {
-		return ctx.Status(http.StatusInternalServerError).JSON(
-			map[string]interface{}{
-				"error": err.Error(),
-			},
-		)
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
 	return ctx.Status(http.StatusOK).JSON(

@@ -11,7 +11,6 @@ type ErrorDetail struct {
 }
 
 type CustomError struct {
-	ErrorName  string `json:"errorName"`
 	StatusCode int    `json:"statusCode"`
 	Message    string `json:"message"`
 }

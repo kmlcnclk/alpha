@@ -10,7 +10,9 @@ import (
 	"time"
 
 	"alpha.com/configuration"
+	"alpha.com/internal/alpha.com/pkg/mongodb"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type server struct {
@@ -23,9 +25,9 @@ func NewServer(app *fiber.App) *server {
 	}
 }
 
-func (s *server) StartHttpServer() {
+func (s *server) StartHttpServer(mongoClient *mongo.Client) {
 	go func() {
-		gracefulShutdown(s.app)
+		gracefulShutdown(s.app, mongoClient)
 	}()
 
 	if err := s.app.Listen(fmt.Sprintf(":%s", configuration.Port)); err != nil && err != http.ErrServerClosed {
@@ -34,7 +36,7 @@ func (s *server) StartHttpServer() {
 	}
 }
 
-func gracefulShutdown(app *fiber.App) {
+func gracefulShutdown(app *fiber.App, mongoClient *mongo.Client) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
@@ -47,6 +49,9 @@ func gracefulShutdown(app *fiber.App) {
 		fmt.Printf("Server Shutdown Error: %v\n", err)
 	}
 
-	fmt.Println("Server exiting")
+	fmt.Println("Fiber server gracefully stopped.")
 
+	mongodb.DisconnectMongoDB(mongoClient)
+
+	fmt.Println("Server exiting")
 }

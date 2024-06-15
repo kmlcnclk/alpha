@@ -84,7 +84,7 @@ func main() {
 	web.InitRouter(app, userController, jwtController)
 
 	// Start server
-	server.NewServer(app).StartHttpServer()
+	server.NewServer(app).StartHttpServer(mongoClient)
 }
 
 func configureSwaggerUi(app *fiber.App) {

@@ -8,7 +8,7 @@ import (
 
 	"alpha.com/internal/alpha.com/application/repository"
 	"alpha.com/internal/alpha.com/domain"
-	"alpha.com/internal/alpha.com/pkg/server/helpers/jwtHelper"
+	"alpha.com/internal/alpha.com/pkg/server/services"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -20,18 +20,18 @@ type ICommandHandler interface {
 
 type commandHandler struct {
 	jwtRepository repository.IJwtRepository
-	jwtHelper     jwtHelper.IJwtHelper
+	jwtService    services.IJwtService
 }
 
-func NewCommandHandler(jwtRepository repository.IJwtRepository, jwtHelper jwtHelper.IJwtHelper) ICommandHandler {
+func NewCommandHandler(jwtRepository repository.IJwtRepository, jwtService services.IJwtService) ICommandHandler {
 	return &commandHandler{
 		jwtRepository: jwtRepository,
-		jwtHelper:     jwtHelper,
+		jwtService:    jwtService,
 	}
 }
 
 func (c *commandHandler) Create(ctx context.Context, command Command) (string, string, error) {
-	accessToken, refreshToken, err := c.jwtHelper.CreateTokens(command.UserID)
+	accessToken, refreshToken, err := c.jwtService.CreateTokens(command.UserID)
 
 	if err != nil {
 
@@ -53,13 +53,13 @@ func (c *commandHandler) Create(ctx context.Context, command Command) (string, s
 		return "", "", err
 	}
 
-	fmt.Printf("commandHandler.Create SUCCESS -> Jwt Tokens successfully created")
+	fmt.Println("commandHandler.Create SUCCESS -> Jwt Tokens successfully created")
 
 	return accessToken, refreshToken, nil
 }
 
 func (c *commandHandler) Refresh(ctx context.Context, userID string) (string, error) {
-	accessToken, err := c.jwtHelper.CreateAccessToken(userID)
+	accessToken, err := c.jwtService.CreateAccessToken(userID)
 
 	if err != nil {
 		fmt.Printf("commandHandler.Refresh ERROR -> There was an error while creating access token - ERROR: %v\n", err.Error())
@@ -67,8 +67,8 @@ func (c *commandHandler) Refresh(ctx context.Context, userID string) (string, er
 	}
 
 	if accessToken == "" {
-		fmt.Errorf("commandHandler.Refresh ERROR -> Access Token is empty")
-		return "", errors.New("Access could not created")
+		fmt.Println("commandHandler.Refresh ERROR -> Access Token is empty")
+		return "", errors.New("access could not created")
 	}
 
 	return accessToken, nil
@@ -87,7 +87,6 @@ func (c *commandHandler) Update(ctx context.Context, userID, accessToken, refres
 
 func (c *commandHandler) BuildEntity(accessToken, refreshToken string, userID primitive.ObjectID) *domain.Jwt {
 	return &domain.Jwt{
-		// Id:           uuid.NewString(),
 		UserID:       userID,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

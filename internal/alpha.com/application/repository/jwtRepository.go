@@ -59,7 +59,7 @@ func (r *jwtRepository) Get(ctx context.Context) ([]*domain.Jwt, error) {
 	}
 
 	if jwts == nil {
-		fmt.Printf("jwtRepository.Get INFO not found users on datasource\n")
+		fmt.Println("jwtRepository.Get INFO not found users on datasource")
 		return make([]*domain.Jwt, 0), nil
 	}
 

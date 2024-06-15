@@ -5,7 +5,7 @@ import (
 
 	"alpha.com/internal/alpha.com/application/repository"
 	"alpha.com/internal/alpha.com/domain"
-	"alpha.com/internal/alpha.com/pkg/server/helpers/jwtHelper"
+	"alpha.com/internal/alpha.com/pkg/server/services"
 )
 
 type IJwtQueryService interface {
@@ -17,14 +17,14 @@ type IJwtQueryService interface {
 type jwtQueryService struct {
 	jwtRepository    repository.IJwtRepository
 	userQueryService IUserQueryService
-	jwtHelper        jwtHelper.IJwtHelper
+	jwtService       services.IJwtService
 }
 
-func NewJwtQueryService(jwtRepository repository.IJwtRepository, userQueryService IUserQueryService, jwtHelper jwtHelper.IJwtHelper) IJwtQueryService {
+func NewJwtQueryService(jwtRepository repository.IJwtRepository, userQueryService IUserQueryService, jwtService services.IJwtService) IJwtQueryService {
 	return &jwtQueryService{
 		jwtRepository:    jwtRepository,
 		userQueryService: userQueryService,
-		jwtHelper:        jwtHelper,
+		jwtService:       jwtService,
 	}
 }
 
@@ -43,7 +43,7 @@ func (u *jwtQueryService) GetUserById(ctx context.Context, userId string) (*doma
 }
 
 func (u *jwtQueryService) ParseRefreshToken(ctx context.Context, refreshToken string) (string, error) {
-	userID, err := u.jwtHelper.ParseRefreshToken(refreshToken)
+	userID, err := u.jwtService.ParseRefreshToken(refreshToken)
 
 	if err != nil {
 		return "", err

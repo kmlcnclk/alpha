@@ -12,7 +12,7 @@ import (
 	"alpha.com/internal/alpha.com/application/web"
 	"alpha.com/internal/alpha.com/pkg/mongodb"
 	"alpha.com/internal/alpha.com/pkg/server"
-	"alpha.com/internal/alpha.com/pkg/server/helpers/jwtHelper"
+	"alpha.com/internal/alpha.com/pkg/server/services"
 	"alpha.com/internal/alpha.com/pkg/validation"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -69,15 +69,18 @@ func main() {
 	// custom validator initializing
 	customValidator := validation.NewCustomValidator(validator.New())
 
+	// User Dependency injection
 	userRepository := repository.NewUserRepository(mongoClient)
+	userService := services.NewUserService()
 	userQueryService := query.NewUserQueryService(userRepository)
-	userCommandHandler := user.NewCommandHandler(userRepository)
+	userCommandHandler := user.NewCommandHandler(userRepository, userService)
 	userController := controller.NewUserController(userQueryService, userCommandHandler, customValidator)
 
+	// Jwt Dependency injection
 	jwtRepository := repository.NewJwtRepository(mongoClient)
-	jwtHelper := jwtHelper.NewJwtHelper()
-	jwtQueryService := query.NewJwtQueryService(jwtRepository, userQueryService, jwtHelper)
-	jwtCommandHandler := jwt.NewCommandHandler(jwtRepository, jwtHelper)
+	jwtService := services.NewJwtService()
+	jwtQueryService := query.NewJwtQueryService(jwtRepository, userQueryService, jwtService)
+	jwtCommandHandler := jwt.NewCommandHandler(jwtRepository, jwtService)
 	jwtController := controller.NewJwtController(jwtQueryService, jwtCommandHandler, customValidator)
 
 	// Router initializing

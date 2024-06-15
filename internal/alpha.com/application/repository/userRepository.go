@@ -95,7 +95,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			fmt.Printf("userRepository.GetByEmail INFO : No documents found with the given email.")
+			fmt.Println("userRepository.GetByEmail INFO : No documents found with the given email.")
 			return nil, nil
 		}
 

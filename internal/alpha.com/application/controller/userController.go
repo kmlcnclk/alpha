@@ -67,7 +67,7 @@ func (u *UserController) Save(ctx *fiber.Ctx) error {
 	fmt.Printf("userController.Save STARTED with request: %#v\n", req)
 
 	if err := u.customValidator.Validate(req); err != nil {
-		fmt.Printf("userController.Save INVALID request: %#v\n - ERROR: %#v", req, err)
+		fmt.Printf("userController.Save INVALID request: %#v - ERROR: %#v\n", req, err)
 		return ctx.Status(http.StatusBadRequest).JSON(err)
 	}
 
@@ -152,7 +152,7 @@ func (u *UserController) SignIn(ctx *fiber.Ctx) error {
 	fmt.Printf("userController.SignIn STARTED with request: %#v\n", req)
 
 	if err := u.customValidator.Validate(req); err != nil {
-		fmt.Printf("userController.SignIn INVALID request: %#v\n - ERROR: %#v", req, err)
+		fmt.Printf("userController.SignIn INVALID request: %#v - ERROR: %#v\n", req, err)
 		return ctx.Status(http.StatusBadRequest).JSON(err)
 	}
 
@@ -199,7 +199,7 @@ func (u *UserController) SignIn(ctx *fiber.Ctx) error {
 
 	return ctx.Status(http.StatusOK).JSON(
 		map[string]interface{}{
-			"message": "User Created Successfully",
+			"message": "User Successfully Sign In",
 			"response": map[string]interface{}{
 				"accessToken":  data["accessToken"],
 				"refreshToken": data["refreshToken"],

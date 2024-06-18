@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null 
+  name: alpha
+  labels: 
+    app: alpha
+    version: "1"     
+  namespace: default
+spec:
+  replicas: 4
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: alpha
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null 
+      labels:
+        app: alpha
+        version: "1"
+    spec:
+      containers:
+      - image: mrsteelcan/alpha:latest
+        name: alpha
+        resources: {}
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+status: {}

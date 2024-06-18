@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null 
+  labels:
+    app: alpha-service 
+  name: alpha-service
+spec:
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+      nodePort: 30000
+  selector:
+    app: alpha
+  type: NodePort
+status:
+  loadBalancer: {}

@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"alpha.com/internal/alpha.com/application/controller"
@@ -11,6 +12,7 @@ import (
 func InitRouter(app *fiber.App, userController controller.IUserController, jwtController controller.IJwtController) {
 
 	app.Get("/healthcheck", func(context *fiber.Ctx) error {
+		fmt.Printf("Request sent to '/healthcheck' route -> Status: %v\n", http.StatusOK)
 		return context.SendStatus(http.StatusOK)
 	})
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"alpha.com/internal/alpha.com/application/query"
 	"alpha.com/internal/alpha.com/application/repository"
 	"alpha.com/internal/alpha.com/domain"
 	"alpha.com/internal/alpha.com/pkg/server/services"
@@ -19,18 +20,27 @@ type ICommandHandler interface {
 }
 
 type commandHandler struct {
-	jwtRepository repository.IJwtRepository
-	jwtService    services.IJwtService
+	jwtRepository    repository.IJwtRepository
+	jwtService       services.IJwtService
+	userQueryService query.IUserQueryService
 }
 
-func NewCommandHandler(jwtRepository repository.IJwtRepository, jwtService services.IJwtService) ICommandHandler {
+func NewCommandHandler(jwtRepository repository.IJwtRepository, jwtService services.IJwtService, userQueryService query.IUserQueryService) ICommandHandler {
 	return &commandHandler{
-		jwtRepository: jwtRepository,
-		jwtService:    jwtService,
+		jwtRepository:    jwtRepository,
+		jwtService:       jwtService,
+		userQueryService: userQueryService,
 	}
 }
 
 func (c *commandHandler) Create(ctx context.Context, command Command) (string, string, error) {
+	_, err := c.userQueryService.GetUserById(ctx, command.UserID)
+
+	if err != nil {
+		fmt.Printf("commandHandler.Create ERROR -> There was an error while finding user with given id: %v Error: %v\n", command.UserID, err.Error())
+		return "", "", err
+	}
+
 	accessToken, refreshToken, err := c.jwtService.CreateTokens(command.UserID)
 
 	if err != nil {
@@ -59,6 +69,13 @@ func (c *commandHandler) Create(ctx context.Context, command Command) (string, s
 }
 
 func (c *commandHandler) Refresh(ctx context.Context, userID string) (string, error) {
+	_, err := c.userQueryService.GetUserById(ctx, userID)
+
+	if err != nil {
+		fmt.Printf("commandHandler.Refresh ERROR -> There was an error while finding user with given id: %v Error: %v\n", userID, err.Error())
+		return "", err
+	}
+
 	accessToken, err := c.jwtService.CreateAccessToken(userID)
 
 	if err != nil {

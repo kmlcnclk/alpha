@@ -80,7 +80,7 @@ func main() {
 	jwtRepository := repository.NewJwtRepository(mongoClient)
 	jwtService := services.NewJwtService()
 	jwtQueryService := query.NewJwtQueryService(jwtRepository, userQueryService, jwtService)
-	jwtCommandHandler := jwt.NewCommandHandler(jwtRepository, jwtService)
+	jwtCommandHandler := jwt.NewCommandHandler(jwtRepository, jwtService, userQueryService)
 	jwtController := controller.NewJwtController(jwtQueryService, jwtCommandHandler, customValidator)
 
 	// Router initializing

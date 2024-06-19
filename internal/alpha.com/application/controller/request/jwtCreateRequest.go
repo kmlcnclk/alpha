@@ -2,11 +2,11 @@ package request
 
 import "alpha.com/internal/alpha.com/application/handler/jwt"
 
-type JwtCreteRequest struct {
+type JwtCreateRequest struct {
 	UserID string `json:"userID"`
 }
 
-func (req *JwtCreteRequest) ToCommand() jwt.Command {
+func (req *JwtCreateRequest) ToCommand() jwt.Command {
 	return jwt.Command{
 		UserID: req.UserID,
 	}

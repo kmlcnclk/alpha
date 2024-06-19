@@ -37,7 +37,7 @@ func NewJwtController(jwtQueryService query.IJwtQueryService, jwtCommandHandler 
 //	@Summary		This method used for saving new jwt
 //	@Description	saving new jwt
 //
-// @Param requestBody body request.JwtCreteRequest nil "Handle Request Body"
+// @Param requestBody body request.JwtCreateRequest nil "Handle Request Body"
 //
 //	@Tags			JWT
 //	@Accept			json
@@ -50,7 +50,7 @@ func NewJwtController(jwtQueryService query.IJwtQueryService, jwtCommandHandler 
 //	@Failure		500
 //	@Router			/api/v1/alpha/jwt [post]
 func (u *JwtController) Create(ctx *fiber.Ctx) error {
-	var req request.JwtCreteRequest
+	var req request.JwtCreateRequest
 	err := ctx.BodyParser(&req)
 
 	fmt.Printf("jwtController.Save INFO -> Request Body: %v\n", req)

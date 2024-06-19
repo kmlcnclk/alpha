@@ -5,6 +5,7 @@ import (
 	_ "alpha.com/docs"
 	"alpha.com/internal/alpha.com/application/controller"
 	"alpha.com/internal/alpha.com/application/controller/response"
+	"alpha.com/internal/alpha.com/application/handler/businessAccount"
 	"alpha.com/internal/alpha.com/application/handler/jwt"
 	"alpha.com/internal/alpha.com/application/handler/user"
 	"alpha.com/internal/alpha.com/application/query"
@@ -83,8 +84,14 @@ func main() {
 	jwtCommandHandler := jwt.NewCommandHandler(jwtRepository, jwtService, userQueryService)
 	jwtController := controller.NewJwtController(jwtQueryService, jwtCommandHandler, customValidator)
 
+	// Business Account Dependency injection
+	businessAccountRepository := repository.NewBusinessAccountRepository(mongoClient)
+	businessAccountQueryService := query.NewBusinessAccountQueryService(businessAccountRepository)
+	businessAccountCommandHandler := businessAccount.NewCommandHandler(businessAccountRepository)
+	businessAccountController := controller.NewBusinessAccountController(businessAccountQueryService, businessAccountCommandHandler, customValidator)
+
 	// Router initializing
-	web.InitRouter(app, userController, jwtController)
+	web.InitRouter(app, userController, jwtController, businessAccountController)
 
 	// Start server
 	server.NewServer(app).StartHttpServer(mongoClient)

@@ -2,7 +2,7 @@ package request
 
 import "alpha.com/internal/alpha.com/application/handler/user"
 
-type UserCreteRequest struct {
+type UserCreateRequest struct {
 	FirstName string `json:"firstName" validate:"required,min=2"`
 	LastName  string `json:"lastName" validate:"required"`
 	Email     string `json:"email" validate:"required"`
@@ -10,7 +10,7 @@ type UserCreteRequest struct {
 	Age       int32  `json:"age" validate:"required"`
 }
 
-func (req *UserCreteRequest) ToCommand() user.Command {
+func (req *UserCreateRequest) ToCommand() user.Command {
 	return user.Command{
 		FirstName: req.FirstName,
 		LastName:  req.LastName,

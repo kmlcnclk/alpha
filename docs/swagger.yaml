@@ -1,10 +1,21 @@
 definitions:
-  request.JwtCreteRequest:
+  request.BusinessAccountCreateRequest:
+    properties:
+      description:
+        type: string
+      name:
+        minLength: 2
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  request.JwtCreateRequest:
     properties:
       userID:
         type: string
     type: object
-  request.UserCreteRequest:
+  request.UserCreateRequest:
     properties:
       age:
         type: integer
@@ -38,13 +49,32 @@ definitions:
     - email
     - password
     type: object
+  response.BusinessAccountResponse:
+    properties:
+      _id:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: string
+    type: object
   response.JwtResponse:
     properties:
       _id:
         type: string
       accessToken:
         type: string
+      createdAt:
+        type: string
       refreshToken:
+        type: string
+      updatedAt:
         type: string
       userId:
         type: string
@@ -55,11 +85,15 @@ definitions:
         type: string
       age:
         type: integer
+      createdAt:
+        type: string
       email:
         type: string
       firstName:
         type: string
       lastName:
+        type: string
+      updatedAt:
         type: string
     type: object
 info:
@@ -70,6 +104,58 @@ info:
   title: Alpha Fiber Rest Api
   version: "1.0"
 paths:
+  /api/v1/alpha/business-account:
+    get:
+      consumes:
+      - application/json
+      description: get all business accounts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.BusinessAccountResponse'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: This method used for get all business accounts
+      tags:
+      - Business Accounts
+    post:
+      consumes:
+      - application/json
+      description: saving new business account
+      parameters:
+      - description: Handle Request Body
+        in: body
+        name: requestBody
+        schema:
+          $ref: '#/definitions/request.BusinessAccountCreateRequest'
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: This method used for saving new business account
+      tags:
+      - Business Accounts
   /api/v1/alpha/jwt:
     get:
       consumes:
@@ -102,7 +188,7 @@ paths:
         in: body
         name: requestBody
         schema:
-          $ref: '#/definitions/request.JwtCreteRequest'
+          $ref: '#/definitions/request.JwtCreateRequest'
       produces:
       - application/json
       responses:
@@ -174,7 +260,7 @@ paths:
         in: body
         name: requestBody
         schema:
-          $ref: '#/definitions/request.UserCreteRequest'
+          $ref: '#/definitions/request.UserCreateRequest'
       produces:
       - application/json
       responses:

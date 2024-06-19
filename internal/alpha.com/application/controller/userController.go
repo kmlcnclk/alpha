@@ -43,7 +43,7 @@ func NewUserController(userQueryService query.IUserQueryService, userCommandHand
 //	@Summary		This method used for saving new user
 //	@Description	saving new user
 //
-// @Param requestBody body request.UserCreteRequest nil "Handle Request Body"
+// @Param requestBody body request.UserCreateRequest nil "Handle Request Body"
 //
 //	@Tags			User
 //	@Accept			json
@@ -56,7 +56,7 @@ func NewUserController(userQueryService query.IUserQueryService, userCommandHand
 //	@Failure		500
 //	@Router			/api/v1/alpha/user [post]
 func (u *UserController) Save(ctx *fiber.Ctx) error {
-	var req request.UserCreteRequest
+	var req request.UserCreateRequest
 	err := ctx.BodyParser(&req)
 
 	if err != nil {

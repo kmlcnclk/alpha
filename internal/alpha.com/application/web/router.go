@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func InitRouter(app *fiber.App, userController controller.IUserController, jwtController controller.IJwtController) {
+func InitRouter(app *fiber.App, userController controller.IUserController, jwtController controller.IJwtController, businessAccount controller.IBusinessAccountController) {
 
 	app.Get("/healthcheck", func(context *fiber.Ctx) error {
 		fmt.Printf("Request sent to '/healthcheck' route -> Status: %v\n", http.StatusOK)
@@ -26,4 +26,7 @@ func InitRouter(app *fiber.App, userController controller.IUserController, jwtCo
 	alphaRouteGroup.Post("/jwt", jwtController.Create)
 	alphaRouteGroup.Post("/jwt/refresh", jwtController.Refresh)
 	alphaRouteGroup.Get("/jwt", jwtController.GetJwt)
+
+	alphaRouteGroup.Post("/business-account", middlewares.JwtMiddleware, businessAccount.Save)
+	alphaRouteGroup.Get("/business-account", businessAccount.GetAllBusinessAccounts)
 }

@@ -18,6 +18,85 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/alpha/business-account": {
+            "get": {
+                "description": "get all business accounts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Business Accounts"
+                ],
+                "summary": "This method used for get all business accounts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.BusinessAccountResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "post": {
+                "description": "saving new business account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Business Accounts"
+                ],
+                "summary": "This method used for saving new business account",
+                "parameters": [
+                    {
+                        "description": "Handle Request Body",
+                        "name": "requestBody",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/request.BusinessAccountCreateRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer {token}",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/api/v1/alpha/jwt": {
             "get": {
                 "description": "get all jwts",
@@ -70,7 +149,7 @@ const docTemplate = `{
                         "name": "requestBody",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/request.JwtCreteRequest"
+                            "$ref": "#/definitions/request.JwtCreateRequest"
                         }
                     }
                 ],
@@ -180,7 +259,7 @@ const docTemplate = `{
                         "name": "requestBody",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/request.UserCreteRequest"
+                            "$ref": "#/definitions/request.UserCreateRequest"
                         }
                     }
                 ],
@@ -289,7 +368,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "request.JwtCreteRequest": {
+        "request.BusinessAccountCreateRequest": {
+            "type": "object",
+            "required": [
+                "description",
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 2
+                }
+            }
+        },
+        "request.JwtCreateRequest": {
             "type": "object",
             "properties": {
                 "userID": {
@@ -297,7 +392,7 @@ const docTemplate = `{
                 }
             }
         },
-        "request.UserCreteRequest": {
+        "request.UserCreateRequest": {
             "type": "object",
             "required": [
                 "age",
@@ -344,6 +439,29 @@ const docTemplate = `{
                 }
             }
         },
+        "response.BusinessAccountResponse": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
         "response.JwtResponse": {
             "type": "object",
             "properties": {
@@ -353,7 +471,13 @@ const docTemplate = `{
                 "accessToken": {
                     "type": "string"
                 },
+                "createdAt": {
+                    "type": "string"
+                },
                 "refreshToken": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 },
                 "userId": {
@@ -370,6 +494,9 @@ const docTemplate = `{
                 "age": {
                     "type": "integer"
                 },
+                "createdAt": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -377,6 +504,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "lastName": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

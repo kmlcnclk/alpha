@@ -15,7 +15,7 @@ import (
 type IJwtRepository interface {
 	Get(ctx context.Context) ([]*domain.Jwt, error)
 	GetById(ctx context.Context, userId string) (*domain.Jwt, error)
-	Upsert(ctx context.Context, user *domain.Jwt) error
+	Upsert(ctx context.Context, jwt *domain.Jwt) error
 	Update(ctx context.Context, userID, accessToken, refreshToken string) error
 }
 

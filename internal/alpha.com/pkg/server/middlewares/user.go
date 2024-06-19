@@ -12,7 +12,7 @@ func IsEmailFormatCorrect(ctx *fiber.Ctx) error {
 		return ctx.Next()
 	}
 
-	var requestBody request.UserCreteRequest
+	var requestBody request.UserCreateRequest
 	if err := ctx.BodyParser(&requestBody); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "JSON format is not correct")
 	}

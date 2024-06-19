@@ -10,6 +10,8 @@ import (
 
 type IBusinessAccountQueryService interface {
 	GetAllBusinessAccounts(ctx context.Context) ([]*domain.BusinessAccount, error)
+	GetByID(ctx context.Context, id string) (*domain.BusinessAccount, error)
+	GetByIDAndUserID(ctx context.Context, id string, userID string) (*domain.BusinessAccount, error)
 }
 
 type businessAccountQueryService struct {
@@ -34,4 +36,32 @@ func (u *businessAccountQueryService) GetAllBusinessAccounts(ctx context.Context
 	}
 
 	return businessAccounts, nil
+}
+
+func (u *businessAccountQueryService) GetByID(ctx context.Context, id string) (*domain.BusinessAccount, error) {
+	businessAccount, err := u.businessAccountRepository.GetByID(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if businessAccount == nil {
+		return nil, errors.New("not found Business Account with given id: " + id)
+	}
+
+	return businessAccount, nil
+}
+
+func (u *businessAccountQueryService) GetByIDAndUserID(ctx context.Context, id string, userID string) (*domain.BusinessAccount, error) {
+	businessAccount, err := u.businessAccountRepository.GetByIDAndUserID(ctx, id, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if businessAccount == nil {
+		return nil, errors.New("not found Business Account with given id: " + id)
+	}
+
+	return businessAccount, nil
 }

@@ -6,13 +6,10 @@ import (
 	"strings"
 
 	"alpha.com/configuration"
+	"alpha.com/internal/alpha.com/pkg/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 )
-
-type UserContext struct {
-	UserID string
-}
 
 var JWTSecret = []byte(configuration.JWT_SECRET)
 
@@ -42,7 +39,7 @@ func JwtMiddleware(c *fiber.Ctx) error {
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		userID := claims["userID"].(string)
-		userCtx := &UserContext{UserID: userID}
+		userCtx := &utils.UserContext{UserID: userID}
 		ctx := context.WithValue(c.UserContext(), "user", userCtx)
 		c.SetUserContext(ctx)
 	} else {

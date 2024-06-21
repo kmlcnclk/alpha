@@ -8,7 +8,7 @@ import (
 	"alpha.com/internal/alpha.com/application/controller/response"
 	"alpha.com/internal/alpha.com/application/handler/job"
 	"alpha.com/internal/alpha.com/application/query"
-	"alpha.com/internal/alpha.com/pkg/server/middlewares"
+	"alpha.com/internal/alpha.com/pkg/utils"
 	"alpha.com/internal/alpha.com/pkg/validation"
 	"github.com/gofiber/fiber/v2"
 )
@@ -71,7 +71,7 @@ func (u *JobController) Save(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusBadRequest).JSON(err)
 	}
 
-	userCtx := ctx.UserContext().Value("user").(*middlewares.UserContext)
+	userCtx := ctx.UserContext().Value("user").(*utils.UserContext)
 
 	errOfCommandHandler := u.jobCommandHandler.Save(ctx.UserContext(), req.ToCommand(), userCtx.UserID)
 

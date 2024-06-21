@@ -12,7 +12,7 @@ import (
 	"alpha.com/internal/alpha.com/application/handler/user"
 	"alpha.com/internal/alpha.com/application/query"
 	"alpha.com/internal/alpha.com/pkg/server/helpers"
-	"alpha.com/internal/alpha.com/pkg/server/middlewares"
+	"alpha.com/internal/alpha.com/pkg/utils"
 	"alpha.com/internal/alpha.com/pkg/validation"
 	"github.com/gofiber/fiber/v2"
 )
@@ -251,7 +251,7 @@ func (u *UserController) GetUser(ctx *fiber.Ctx) error {
 //	@Router			/api/v1/alpha/user/{userId} [get]
 func (u *UserController) GetUserById(ctx *fiber.Ctx) error {
 	user, err := u.userQueryService.GetUserById(ctx.UserContext(), ctx.Params("userId"))
-	userCtx := ctx.UserContext().Value("user").(*middlewares.UserContext)
+	userCtx := ctx.UserContext().Value("user").(*utils.UserContext)
 
 	fmt.Println(userCtx.UserID)
 

@@ -10,6 +10,7 @@ var MONGO_USERS_DB_NAME = "users"
 var MONGO_JWT_DB_NAME = "jwts"
 var MONGO_BUSINESS_ACCOUNT_DB_NAME = "businessAccounts"
 var MONGO_JOBS_DB_NAME = "jobs"
+var MONGO_JOB_APPLIES_DB_NAME = "jobApplies"
 
 var ACCESS_TOKEN_TIME = "7d"
 var REFRESH_TOKEN_TIME = "21d"

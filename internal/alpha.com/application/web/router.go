@@ -13,7 +13,9 @@ func InitRouter(app *fiber.App,
 	userController controller.IUserController,
 	jwtController controller.IJwtController,
 	businessAccountController controller.IBusinessAccountController,
-	jobController controller.IJobController) {
+	jobController controller.IJobController,
+	jobApplyController controller.IJobApplyController,
+) {
 
 	app.Get("/healthcheck", func(context *fiber.Ctx) error {
 		fmt.Printf("Request sent to '/healthcheck' route -> Status: %v\n", http.StatusOK)
@@ -36,4 +38,7 @@ func InitRouter(app *fiber.App,
 
 	alphaRouteGroup.Post("/job", middlewares.JwtMiddleware, jobController.Save)
 	alphaRouteGroup.Get("/job", jobController.GetAllJobs)
+
+	alphaRouteGroup.Post("/job-apply", middlewares.JwtMiddleware, jobApplyController.Save)
+	alphaRouteGroup.Get("/job-apply", jobApplyController.GetAllJobApplies)
 }

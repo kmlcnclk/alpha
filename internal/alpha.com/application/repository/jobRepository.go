@@ -14,6 +14,7 @@ import (
 type IJobRepository interface {
 	Get(ctx context.Context) ([]*domain.Job, error)
 	Upsert(ctx context.Context, job *domain.Job) error
+	GetByIDAndBusinessAccountID(ctx context.Context, id, businessAccountID string) (*domain.Job, error)
 }
 
 type jobRepository struct {
@@ -76,4 +77,31 @@ func (r *jobRepository) Upsert(ctx context.Context, job *domain.Job) error {
 	fmt.Printf("jobRepository.Upsert INFO user saved with id: %s\n", objectID.Hex())
 
 	return nil
+}
+
+func (r *jobRepository) GetByIDAndBusinessAccountID(ctx context.Context, id, businessAccountID string) (*domain.Job, error) {
+	collection := r.mongoClient.Database(configuration.MONGO_DB_NAME).Collection(configuration.MONGO_JOBS_DB_NAME)
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Printf("jobRepository.GetByIDAndUserID ERROR :  %s\n", err.Error())
+		return nil, err
+	}
+
+	objectIDForBusinessAccount, err := primitive.ObjectIDFromHex(businessAccountID)
+	if err != nil {
+		fmt.Printf("jobRepository.GetByIDAndUserID ERROR :  %s\n", err.Error())
+		return nil, err
+	}
+
+	filter := bson.M{"_id": objectID, "businessAccountId": objectIDForBusinessAccount}
+
+	var job *domain.Job
+	err = collection.FindOne(context.Background(), filter).Decode(&job)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return job, nil
 }

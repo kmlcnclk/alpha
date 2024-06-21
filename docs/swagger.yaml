@@ -10,6 +10,16 @@ definitions:
     - description
     - name
     type: object
+  request.JobApplyCreateRequest:
+    properties:
+      businessAccountId:
+        type: string
+      jobId:
+        type: string
+    required:
+    - businessAccountId
+    - jobId
+    type: object
   request.JobCreateRequest:
     properties:
       businessAccountId:
@@ -78,6 +88,19 @@ definitions:
       description:
         type: string
       name:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: string
+    type: object
+  response.JobApplyResponse:
+    properties:
+      _id:
+        type: string
+      createdAt:
+        type: string
+      jobId:
         type: string
       updatedAt:
         type: string
@@ -247,6 +270,58 @@ paths:
       summary: This method used for saving new job
       tags:
       - Jobs
+  /api/v1/alpha/job-apply:
+    get:
+      consumes:
+      - application/json
+      description: get all job applies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.JobApplyResponse'
+            type: array
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: This method used for get all job applies
+      tags:
+      - Job Applies
+    post:
+      consumes:
+      - application/json
+      description: saving new jobApply
+      parameters:
+      - description: Handle Request Body
+        in: body
+        name: requestBody
+        schema:
+          $ref: '#/definitions/request.JobApplyCreateRequest'
+      - description: Bearer {token}
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: This method used for saving new jobApply
+      tags:
+      - Job Applies
   /api/v1/alpha/jwt:
     get:
       consumes:

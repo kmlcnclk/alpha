@@ -10,6 +10,7 @@ import (
 
 type IJobQueryService interface {
 	GetAllJobs(ctx context.Context) ([]*domain.Job, error)
+	GetByIDAndBusinessAccountID(ctx context.Context, id, businessAccountID string) (*domain.Job, error)
 }
 
 type jobQueryService struct {
@@ -34,4 +35,18 @@ func (u *jobQueryService) GetAllJobs(ctx context.Context) ([]*domain.Job, error)
 	}
 
 	return jobs, nil
+}
+
+func (u *jobQueryService) GetByIDAndBusinessAccountID(ctx context.Context, id, businessAccountID string) (*domain.Job, error) {
+	job, err := u.jobRepository.GetByIDAndBusinessAccountID(ctx, id, businessAccountID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if job == nil {
+		return nil, errors.New("not found Job with given id: " + id)
+	}
+
+	return job, nil
 }

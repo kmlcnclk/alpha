@@ -7,6 +7,7 @@ import (
 	"alpha.com/internal/alpha.com/application/controller/response"
 	"alpha.com/internal/alpha.com/application/handler/businessAccount"
 	"alpha.com/internal/alpha.com/application/handler/job"
+	"alpha.com/internal/alpha.com/application/handler/jobApply"
 	"alpha.com/internal/alpha.com/application/handler/jwt"
 	"alpha.com/internal/alpha.com/application/handler/user"
 	"alpha.com/internal/alpha.com/application/query"
@@ -97,8 +98,14 @@ func main() {
 	jobCommandHandler := job.NewCommandHandler(jobRepository, businessAccountQueryService)
 	jobController := controller.NewJobController(jobQueryService, jobCommandHandler, customValidator)
 
+	// Job Apply Dependency injection
+	jobApplyRepository := repository.NewJobApplyRepository(mongoClient)
+	jobApplyQueryService := query.NewJobApplyQueryService(jobApplyRepository)
+	jobApplyCommandHandler := jobApply.NewCommandHandler(jobApplyRepository, jobQueryService, userQueryService)
+	jobApplyController := controller.NewJobApplyController(jobApplyQueryService, jobApplyCommandHandler, customValidator)
+
 	// Router initializing
-	web.InitRouter(app, userController, jwtController, businessAccountController, jobController)
+	web.InitRouter(app, userController, jwtController, businessAccountController, jobController, jobApplyController)
 
 	// Start server
 	server.NewServer(app).StartHttpServer(mongoClient)

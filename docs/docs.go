@@ -176,6 +176,85 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/alpha/job-apply": {
+            "get": {
+                "description": "get all job applies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Job Applies"
+                ],
+                "summary": "This method used for get all job applies",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/response.JobApplyResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "post": {
+                "description": "saving new jobApply",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Job Applies"
+                ],
+                "summary": "This method used for saving new jobApply",
+                "parameters": [
+                    {
+                        "description": "Handle Request Body",
+                        "name": "requestBody",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/request.JobApplyCreateRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bearer {token}",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/api/v1/alpha/jwt": {
             "get": {
                 "description": "get all jwts",
@@ -463,6 +542,21 @@ const docTemplate = `{
                 }
             }
         },
+        "request.JobApplyCreateRequest": {
+            "type": "object",
+            "required": [
+                "businessAccountId",
+                "jobId"
+            ],
+            "properties": {
+                "businessAccountId": {
+                    "type": "string"
+                },
+                "jobId": {
+                    "type": "string"
+                }
+            }
+        },
         "request.JobCreateRequest": {
             "type": "object",
             "required": [
@@ -559,6 +653,26 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.JobApplyResponse": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "jobId": {
                     "type": "string"
                 },
                 "updatedAt": {
